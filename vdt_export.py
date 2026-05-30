@@ -136,15 +136,56 @@ def build_pdf_encrypted(contacts, password):
     return pdf_bytes
 
 
-def send_email(file_bytes, filename, subject, body, token):
+# ✅ HTML SIGNATURE (zentral, für beide Mails)
+def build_signature():
+    return """
+<p>Viele Grüße<br>
+Marc</p>
+
+<p>-<br>
+isdv e.V.<br>
+-Sirius Office Center-<br>
+Hanauer Landstr. 328-330<br>
+60314 Frankfurt am Main</p>
+
+<p>Marc Stähly<br>
+2. Vorsitzender</p>
+
+<p>
+T.: +49 178 2 44 76 25<br>
+M.: <a href="mailto:m.staehly@isdv.net">m.staehly@isdv.net</a><br>
+W.: <a href="https://www.isdv.net">www.isdv.net</a>
+</p>
+
+<p>
+Registernummer im Lobbyregister des Bundestages: R000099<br>
+Amtsgericht Frankfurt am Main, VR16763<br>
+Vertretungsberechtigter Vorstand: Marcus Pohl, Marc Stähly
+</p>
+"""
+
+
+def send_email(file_bytes, filename, subject, token):
     print("📧 Sende Hauptmail an:", RECIPIENT_EMAIL)
+
+    body = f"""
+<html><body>
+
+<p>Hallo Alex,</p>
+
+<p>anbei die aktuelle Liste der VDT-Mitglieder.</p>
+
+{build_signature()}
+
+</body></html>
+"""
 
     attachment = base64.b64encode(file_bytes).decode()
 
     message = {
         "message": {
             "subject": subject,
-            "body": {"contentType": "Text", "content": body},
+            "body": {"contentType": "HTML", "content": body},
             "toRecipients": [{"emailAddress": {"address": RECIPIENT_EMAIL}}],
             "attachments": [{
                 "@odata.type": "#microsoft.graph.fileAttachment",
@@ -163,40 +204,24 @@ def send_email(file_bytes, filename, subject, body, token):
 def send_password_email(password, token):
     print("🔑 Sende Passwort-Mail")
 
-    subject = "isdv e.V. - Passwort für Mitglieder-Datei"
+    body = f"""
+<html><body>
 
-    body = f"""Hallo Alex,
+<p>Hallo Alex,</p>
 
-anbei das Passwort für die PDF-Datei.
+<p>anbei das Passwort für die PDF-Datei.</p>
 
-Passwort:
-{password}
+<p><b>Passwort:</b><br>{password}</p>
 
-Viele Grüße
-Marc
+{build_signature()}
 
--
-isdv e.V.
--Sirius Office Center-
-Hanauer Landstr. 328-330
-60314 Frankfurt am Main
-
-Marc Stähly
-2. Vorsitzender
-
-T.: +49 178 2 44 76 25
-M.: m.staehly@isdv.net
-W.: www.isdv.net
-
-Registernummer im Lobbyregister des Bundestages: R000099
-Amtsgericht Frankfurt am Main, VR16763
-Vertretungsberechtigter Vorstand: Marcus Pohl, Marc Stähly
+</body></html>
 """
 
     message = {
         "message": {
-            "subject": subject,
-            "body": {"contentType": "Text", "content": body},
+            "subject": "isdv e.V. - Passwort für Mitglieder-Datei",
+            "body": {"contentType": "HTML", "content": body},
             "toRecipients": [{"emailAddress": {"address": RECIPIENT_EMAIL}}]
         }
     }
@@ -212,33 +237,7 @@ def main():
 
     month_label = date_from.strftime("%m/%Y")
     filename = f"VDT_Mitglieder_{date_from.strftime('%Y-%m')}.pdf"
-
     subject = f"isdv e.V. - VDT-Mitgliederliste {month_label}"
-
-    body = """Hallo Alex,
-
-anbei die aktuelle Liste der VDT-Mitglieder.
-
-Viele Grüße
-Marc
-
--
-isdv e.V.
--Sirius Office Center-
-Hanauer Landstr. 328-330
-60314 Frankfurt am Main
-
-Marc Stähly
-2. Vorsitzender
-
-T.: +49 178 2 44 76 25
-M.: m.staehly@isdv.net
-W.: www.isdv.net
-
-Registernummer im Lobbyregister des Bundestages: R000099
-Amtsgericht Frankfurt am Main, VR16763
-Vertretungsberechtigter Vorstand: Marcus Pohl, Marc Stähly
-"""
 
     contacts = fetch_vdt_contacts()
     new_members = filter_new_members(contacts, date_from, date_to)
@@ -254,7 +253,7 @@ Vertretungsberechtigter Vorstand: Marcus Pohl, Marc Stähly
 
     token = get_ms_token()
 
-    send_email(pdf_bytes, filename, subject, body, token)
+    send_email(pdf_bytes, filename, subject, token)
     send_password_email(password, token)
 
     print("✅ Fertig")
