@@ -10,24 +10,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Repository auschecken
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Python installieren
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Abhängigkeiten installieren
+      - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install requests pandas openpyxl pyzipper python-dateutil
+          pip install requests python-dateutil reportlab
 
-      - name: Script ausführen
+      - name: Run script
         env:
           CAMPAI_API_KEY: ${{ secrets.CAMPAI_API_KEY }}
           MS_CLIENT_ID: ${{ secrets.MS_CLIENT_ID }}
           MS_TENANT_ID: ${{ secrets.MS_TENANT_ID }}
           MS_CLIENT_SECRET: ${{ secrets.MS_CLIENT_SECRET }}
-          ZIP_PASSWORD: ${{ secrets.ZIP_PASSWORD }}
         run: python vdt_export.py
