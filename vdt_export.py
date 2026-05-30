@@ -21,7 +21,7 @@ import pyzipper  # für AES-verschlüsselte ZIP mit Excel
 # ── Konfiguration aus Umgebungsvariablen ────────────────────────────────────
 CAMPAI_API_KEY     = os.environ["CAMPAI_API_KEY"]
 CAMPAI_ORG_ID      = "mzfbs"
-CAMPAI_MANDATE_ID  = "mzfbs"  # anpassen falls abweichend
+CAMPAI_MANDATE_ID  = "mzfbs"
 
 SMTP_HOST          = os.environ.get("SMTP_HOST", "smtp.strato.de")
 SMTP_PORT          = int(os.environ.get("SMTP_PORT", "587"))
@@ -30,7 +30,7 @@ SMTP_PASSWORD      = os.environ["SMTP_PASSWORD"]
 
 SENDER_EMAIL       = "m.staehly@isdv.net"
 RECIPIENT_EMAIL    = "info@ms-sounddesign.com"      # TEST — produktiv: grommes@tonmeisterverband.org
-ZIP_PASSWORD       = os.environ["ZIP_PASSWORD"]     # Passwort für die ZIP
+ZIP_PASSWORD       = os.environ["ZIP_PASSWORD"]
 
 TAG_VDT            = "VDT"
 # ────────────────────────────────────────────────────────────────────────────
@@ -47,9 +47,7 @@ def get_date_range():
 
 def fetch_vdt_members(date_from: datetime, date_to: datetime) -> bytes:
     """
-    Ruft den Campai Export-Endpunkt auf und filtert nach:
-    - Tag "VDT"
-    - member.entryAt im letzten Monat
+    Ruft den Campai Export-Endpunkt auf und filtert nach Tag "VDT".
     Gibt den rohen Excel-Dateiinhalt zurück.
     """
     url = (
@@ -61,8 +59,6 @@ def fetch_vdt_members(date_from: datetime, date_to: datetime) -> bytes:
         "format": "xlsx",
         "tags": [TAG_VDT],
         "types": ["member"],
-        # userFilter temporär deaktiviert — erst alle VDT-Mitglieder exportieren
-        # um die korrekten Feldnamen für den Datumsfilter zu ermitteln
         "formatOptions": {
             "xlsx": {
                 "arrayFormat": "join"
@@ -75,13 +71,23 @@ def fetch_vdt_members(date_from: datetime, date_to: datetime) -> bytes:
         "Content-Type": "application/json"
     }
 
+    print(f"API-Request an: {url}")
+    print(f"Payload: {json.dumps(payload, indent=2)}")
+
     response = requests.post(url, headers=headers, json=payload, timeout=60)
-    response.raise_for_status()
+
+    # Detaillierte Fehlerausgabe
+    if not response.ok:
+        print(f"HTTP {response.status_code}: {response.text[:1000]}")
+        response.raise_for_status()
 
     # Campai gibt entweder direkt die Datei zurück oder ein JSON mit URL
     content_type = response.headers.get("Content-Type", "")
+    print(f"Response Content-Type: {content_type}")
+
     if "application/json" in content_type:
         data = response.json()
+        print(f"JSON Response: {json.dumps(data)[:500]}")
         # Falls asynchron: Download-URL aus Response holen
         if "data" in data and isinstance(data["data"], dict):
             file_url = data["data"].get("url") or data["data"].get("downloadUrl")
@@ -126,7 +132,7 @@ anbei die Liste der isdv-Mitglieder mit VDT-Zugehörigkeit, die im {month_label}
 Die Excel-Datei ist passwortgeschützt. Das Passwort erhalten Sie auf dem üblichen Weg.
 
 Mit freundlichen Grüßen
-isdv e.V. – Interessengemeinschaft der selbständigen DienstleisterInnen in der Veranstaltungswirtschaft e.V.
+isdv e.V. - Interessengemeinschaft der selbstaendigen DienstleisterInnen in der Veranstaltungswirtschaft e.V.
 """
 
     msg.attach(MIMEText(body, "plain", "utf-8"))
@@ -146,22 +152,22 @@ isdv e.V. – Interessengemeinschaft der selbständigen DienstleisterInnen in de
         server.login(SMTP_USER, SMTP_PASSWORD)
         server.sendmail(SENDER_EMAIL, RECIPIENT_EMAIL, msg.as_string())
 
-    print(f"✓ E-Mail erfolgreich versandt an {RECIPIENT_EMAIL}")
+    print(f"E-Mail erfolgreich versandt an {RECIPIENT_EMAIL}")
 
 
 def main():
     date_from, date_to = get_date_range()
-    month_label = date_from.strftime("%B %Y")  # z.B. "April 2026"
+    month_label = date_from.strftime("%B %Y")
     excel_filename = f"VDT_Mitglieder_{date_from.strftime('%Y-%m')}.xlsx"
     zip_filename   = f"VDT_Mitglieder_{date_from.strftime('%Y-%m')}.zip"
 
-    print(f"Exportiere VDT-Mitglieder für {month_label}...")
+    print(f"Exportiere VDT-Mitglieder fuer {month_label}...")
     excel_bytes = fetch_vdt_members(date_from, date_to)
-    print(f"✓ {len(excel_bytes)} Bytes empfangen")
+    print(f"{len(excel_bytes)} Bytes empfangen")
 
-    print("Erstelle verschlüsselte ZIP...")
+    print("Erstelle verschluesselte ZIP...")
     zip_bytes = create_encrypted_zip(excel_bytes, excel_filename, ZIP_PASSWORD)
-    print(f"✓ ZIP erstellt ({len(zip_bytes)} Bytes)")
+    print(f"ZIP erstellt ({len(zip_bytes)} Bytes)")
 
     print("Versende E-Mail...")
     send_email(zip_bytes, zip_filename, month_label)
