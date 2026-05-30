@@ -25,11 +25,11 @@ CAMPAI_MANDATE_ID  = "mzfbs"  # anpassen falls abweichend
 
 SMTP_HOST          = os.environ.get("SMTP_HOST", "smtp.strato.de")
 SMTP_PORT          = int(os.environ.get("SMTP_PORT", "587"))
-SMTP_USER          = os.environ["SMTP_USER"]        # service@my.isdv.net
+SMTP_USER          = os.environ["SMTP_USER"]        # m.staehly@isdv.net
 SMTP_PASSWORD      = os.environ["SMTP_PASSWORD"]
 
 SENDER_EMAIL       = "m.staehly@isdv.net"
-RECIPIENT_EMAIL    = "info@ms-sounddesign.com"
+RECIPIENT_EMAIL    = "info@ms-sounddesign.com"      # TEST — produktiv: grommes@tonmeisterverband.org
 ZIP_PASSWORD       = os.environ["ZIP_PASSWORD"]     # Passwort für die ZIP
 
 TAG_VDT            = "VDT"
@@ -61,26 +61,8 @@ def fetch_vdt_members(date_from: datetime, date_to: datetime) -> bytes:
         "format": "xlsx",
         "tags": [TAG_VDT],
         "types": ["member"],
-        "userFilter": {
-            "operator": "AND",
-            "groups": [
-                {
-                    "operator": "AND",
-                    "fields": [
-                        {
-                            "path": "member.entryAt",
-                            "comparator": "gte",
-                            "value": date_from.isoformat()
-                        },
-                        {
-                            "path": "member.entryAt",
-                            "comparator": "lt",
-                            "value": date_to.isoformat()
-                        }
-                    ]
-                }
-            ]
-        },
+        # userFilter temporär deaktiviert — erst alle VDT-Mitglieder exportieren
+        # um die korrekten Feldnamen für den Datumsfilter zu ermitteln
         "formatOptions": {
             "xlsx": {
                 "arrayFormat": "join"
