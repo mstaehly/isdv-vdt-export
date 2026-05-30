@@ -211,6 +211,8 @@ def main():
     date_from, date_to = get_date_range()
 
     month_label = date_from.strftime("%m/%Y")
+    filename = f"VDT_Mitglieder_{date_from.strftime('%Y-%m')}.pdf"
+
     subject = f"isdv e.V. - VDT-Mitgliederliste {month_label}"
 
     body = """Hallo Alex,
@@ -241,7 +243,6 @@ Vertretungsberechtigter Vorstand: Marcus Pohl, Marc Stähly
     contacts = fetch_vdt_contacts()
     new_members = filter_new_members(contacts, date_from, date_to)
 
-    # TESTMODUS → immer senden
     if not new_members:
         print("⚠️ Keine neuen Mitglieder – sende Testdaten")
         new_members = contacts[:5]
@@ -253,7 +254,7 @@ Vertretungsberechtigter Vorstand: Marcus Pohl, Marc Stähly
 
     token = get_ms_token()
 
-    send_email(pdf_bytes, "mitglieder.pdf", subject, body, token)
+    send_email(pdf_bytes, filename, subject, body, token)
     send_password_email(password, token)
 
     print("✅ Fertig")
