@@ -28,8 +28,8 @@ SMTP_PORT          = int(os.environ.get("SMTP_PORT", "587"))
 SMTP_USER          = os.environ["SMTP_USER"]        # service@my.isdv.net
 SMTP_PASSWORD      = os.environ["SMTP_PASSWORD"]
 
-SENDER_EMAIL       = "service@my.isdv.net"
-RECIPIENT_EMAIL    = "grommes@tonmeisterverband.org"
+SENDER_EMAIL       = "m.staehly@isdv.net"
+RECIPIENT_EMAIL    = "info@ms-sounddesign.com"
 ZIP_PASSWORD       = os.environ["ZIP_PASSWORD"]     # Passwort für die ZIP
 
 TAG_VDT            = "VDT"
