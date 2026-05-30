@@ -2,25 +2,28 @@ name: Monatlicher VDT-Mitglieder-Export
 
 on:
   schedule:
-    - cron: '0 8 1 * *'
-  workflow_dispatch:
+    - cron: '0 8 1 * *'   # jeden 1. des Monats 08:00 UTC
+  workflow_dispatch:      # manuell starten möglich
 
 jobs:
   export-and-send:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Repository auschecken
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Python installieren
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Dependencies installieren
         run: |
+          python -m pip install --upgrade pip
           pip install requests python-dateutil reportlab
 
-      - name: Run script
+      - name: Script ausführen
         env:
           CAMPAI_API_KEY: ${{ secrets.CAMPAI_API_KEY }}
           MS_CLIENT_ID: ${{ secrets.MS_CLIENT_ID }}
