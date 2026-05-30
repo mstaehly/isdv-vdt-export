@@ -31,4 +31,3 @@ jobs:
           MS_CLIENT_SECRET: ${{ secrets.MS_CLIENT_SECRET }}
           ZIP_PASSWORD: ${{ secrets.ZIP_PASSWORD }}
         run: python vdt_export.py
-``
