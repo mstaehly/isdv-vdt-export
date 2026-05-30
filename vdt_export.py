@@ -25,7 +25,7 @@ MS_TENANT_ID = os.environ["MS_TENANT_ID"]
 MS_CLIENT_SECRET = os.environ["MS_CLIENT_SECRET"]
 
 SENDER_EMAIL = "m.staehly@isdv.net"
-RECIPIENT_EMAIL = "info@ms-sounddesign.com"  # ✅ TEST
+RECIPIENT_EMAIL = "info@ms-sounddesign.com"  # TEST
 
 TAG_VDT = "VDT"
 
@@ -188,8 +188,8 @@ T.: +49 178 2 44 76 25
 M.: m.staehly@isdv.net
 W.: www.isdv.net
 
-Registernummer im Lobbyregister des Bundestages: R000099  
-Amtsgericht Frankfurt am Main, VR16763  
+Registernummer im Lobbyregister des Bundestages: R000099
+Amtsgericht Frankfurt am Main, VR16763
 Vertretungsberechtigter Vorstand: Marcus Pohl, Marc Stähly
 """
 
@@ -233,15 +233,15 @@ T.: +49 178 2 44 76 25
 M.: m.staehly@isdv.net
 W.: www.isdv.net
 
-Registernummer im Lobbyregister des Bundestages: R000099  
-Amtsgericht Frankfurt am Main, VR16763  
+Registernummer im Lobbyregister des Bundestages: R000099
+Amtsgericht Frankfurt am Main, VR16763
 Vertretungsberechtigter Vorstand: Marcus Pohl, Marc Stähly
 """
 
     contacts = fetch_vdt_contacts()
     new_members = filter_new_members(contacts, date_from, date_to)
 
-    # ✅ TEST MODUS (IMMER SENDEN)
+    # TESTMODUS → immer senden
     if not new_members:
         print("⚠️ Keine neuen Mitglieder – sende Testdaten")
         new_members = contacts[:5]
@@ -261,4 +261,3 @@ Vertretungsberechtigter Vorstand: Marcus Pohl, Marc Stähly
 
 if __name__ == "__main__":
     main()
-``
