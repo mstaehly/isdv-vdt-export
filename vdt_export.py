@@ -25,7 +25,7 @@ MS_TENANT_ID = os.environ["MS_TENANT_ID"]
 MS_CLIENT_SECRET = os.environ["MS_CLIENT_SECRET"]
 
 SENDER_EMAIL = "m.staehly@isdv.net"
-RECIPIENT_EMAIL = "info@ms-sounddesign.com"  # TEST
+RECIPIENT_EMAIL = "grommes@tonmeisterverband.org"
 
 TAG_VDT = "VDT"
 
@@ -136,7 +136,7 @@ def build_pdf_encrypted(contacts, password):
     return pdf_bytes
 
 
-# ✅ HTML SIGNATURE (zentral, für beide Mails)
+# ✅ HTML SIGNATUR
 def build_signature():
     return """
 <p>Viele Grüße<br>
@@ -166,8 +166,6 @@ Vertretungsberechtigter Vorstand: Marcus Pohl, Marc Stähly
 
 
 def send_email(file_bytes, filename, subject, token):
-    print("📧 Sende Hauptmail an:", RECIPIENT_EMAIL)
-
     body = f"""
 <html><body>
 
@@ -202,8 +200,6 @@ def send_email(file_bytes, filename, subject, token):
 
 
 def send_password_email(password, token):
-    print("🔑 Sende Passwort-Mail")
-
     body = f"""
 <html><body>
 
@@ -243,11 +239,11 @@ def main():
     new_members = filter_new_members(contacts, date_from, date_to)
 
     if not new_members:
-        print("⚠️ Keine neuen Mitglieder – sende Testdaten")
-        new_members = contacts[:5]
+        print("Keine neuen Mitglieder – keine Mail wird versendet")
+        return
 
     password = generate_password()
-    print("🔑 Passwort:", password)
+    print("Passwort:", password)
 
     pdf_bytes = build_pdf_encrypted(new_members, password)
 
